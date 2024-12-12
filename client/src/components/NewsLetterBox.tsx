@@ -29,58 +29,13 @@ const NewsLetterBox = () => {
       return; // Exit if email is invalid
     }
 
-    // Placeholder for checking if email already exists (static for now)
-    const existingEmails = ['existing@email.com', 'another@existing.email.com'];
-    if (existingEmails.includes(email)) {
-      // Show an error if email is already registered
-      toast.error('This email address is already registered.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        className: 'custom-toast', 
-        progressClassName: 'custom-toast-progress'
-      });
-      return; // Exit if email is already registered
-    }
-
     try {
-      // Simulate sending the email to the backend (axios part)
-      // You can uncomment this when you connect to a backend
-      /*
-      const response = await axios.post<{ success: boolean }>('https://yourbackend.com/api/subscribe', { email });
+      // Send email to backend API
+      const response = await axios.post('http://localhost:5000/api/newsletter/subscribe', { 
+        email 
+      });
       
-      if (response.status === 200) {
-        // Show a success message if the email was successfully subscribed
-        toast.success('You have successfully subscribed!', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          className: 'custom-toast',
-          progressClassName: 'custom-toast-progress'
-        });
-        setEmail(''); // Clear the email input after successful subscription
-      } else {
-        // Show an error if subscription failed
-        toast.error('Failed to subscribe. Please try again later.', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          className: 'custom-toast',
-          progressClassName: 'custom-toast-progress'
-        });
-      }
-      */
-
-      // Simulate success for now
+       // Show success message
       toast.success('You have successfully subscribed!', {
         position: "top-right",
         autoClose: 3000,
@@ -92,11 +47,21 @@ const NewsLetterBox = () => {
         progressClassName: 'custom-toast-progress'
       });
 
-      setEmail(''); // Clear the input after subscription
+       // Clear the email input
+      setEmail('');
 
-    } catch (error) {
-      // Show an error message if something went wrong (e.g., network or server issues)
-      toast.error('An error occurred. Please try again later.', {
+        } catch (error: any) {
+      // Handle specific error messages from backend
+      const errorMsg = error.response?.data?.message || 'An error occurred. Please try again later.';
+
+       // Specific handling for rate limit errors
+    if (error.response?.status === 429) {
+      toast.error('Too many attempts. Please try again in 15 minutes.', {
+        position: "top-right",
+        autoClose: 5000,
+      });
+    } else {
+      toast.error(errorMsg, {
         position: "top-right",
         autoClose: 3000,
         hideProgressBar: false,
@@ -106,8 +71,11 @@ const NewsLetterBox = () => {
         className: 'custom-toast', 
         progressClassName: 'custom-toast-progress'
       });
+    }    
     }
   };
+  
+   
 
   return (
     <div className='text-center pt-8 '>

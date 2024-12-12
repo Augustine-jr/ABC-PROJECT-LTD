@@ -13,6 +13,10 @@ const newsletterSubscriberSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
+  subscribedFromIp: {
+    type: String,
+    required: false
+  },
   isActive: {
     type: Boolean,
     default: true
