@@ -1,7 +1,14 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 import User from '../models/userModel';
+
+dotenv.config();
+
+if (!process.env.JWT_SECRET) {
+  throw new Error('JWT_SECRET is not defined in environment variables');
+}
 
 // Route for user login
 const loginUser = async (req: Request, res: Response) => {
@@ -20,11 +27,11 @@ const loginUser = async (req: Request, res: Response) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET!, { expiresIn: '9h' });
 
     res.json({ message: 'Login successful', token });
   } catch (err) {
-    console.error(err);
+    console.error('Login error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -39,18 +46,16 @@ const registerUser = async (req: Request, res: Response) => {
       return res.status(400).json({ message: 'Email already in use' });
     }
 
-    // Hash the password before saving the user
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, password: hashedPassword });
+    const newUser = new User({ name, email, password,  accountType: 'Sign Up' });
 
     await newUser.save();
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: newUser._id }, process.env.JWT_SECRET!, { expiresIn: '9h' });
 
     res.status(201).json({ message: 'User registered successfully', token });
   } catch (err) {
-    console.error(err);
+    console.error('Registration error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -71,7 +76,7 @@ const forgotPassword = async (req: Request, res: Response) => {
     // In a real-world scenario, you would send the reset token to the user's email
     res.json({ message: 'Password reset link sent', resetToken });
   } catch (err) {
-    console.error(err);
+     console.error('Forgot password error:', err)
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -96,7 +101,7 @@ const resetPassword = async (req: Request, res: Response) => {
 
     res.json({ message: 'Password reset successful' });
   } catch (err) {
-    console.error(err);
+     console.error('Forgot password error:', err)
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -125,7 +130,7 @@ const adminLogin = async (req: Request, res: Response) => {
     }
 
     // Generate a JWT token
-    const token = jwt.sign({ userId: admin._id, role: 'admin' }, process.env.JWT_SECRET!, { expiresIn: '1h' });
+    const token = jwt.sign({ userId: admin._id, role: 'admin' }, process.env.JWT_SECRET!, { expiresIn: '9h' });
 
     res.json({ message: 'Admin login successful', token });
   } catch (err) {
