@@ -1,0 +1,100 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+body {
+  font-family: 'Poppins', sans-serif;
+      background-color: #ebe6d7;
+
+}
+
+a.active hr {
+  display: block;
+}
+
+.explore {
+    cursor: pointer;
+    position: relative;
+    border: none;
+    background: none;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: 400ms;
+  transition-property: color;
+}
+
+.explore:focus,
+.explore:hover {
+  color: black;
+}
+
+.explore:focus:after,
+.explore:hover:after {
+  width: 100%;
+  left: 0%;
+}
+
+.explore:after {
+  content: "";
+  pointer-events: none;
+  bottom: -2px;
+  left: 50%;
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  background-color: black;
+  transition-timing-function: cubic-bezier(0.25, 0.8, 0.25, 1);
+  transition-duration: 400ms;
+  transition-property: width, left;
+}
+
+@media (max-width: 768px) {
+  a.active {
+    background-color: #d1c7a3;
+  }
+}
+
+
+input:-webkit-autofill {
+  background-color: #ebe6d7 !important;
+  /* Same as your normal input background */
+  color: black !important;
+  /* Set text color to your desired color */
+  border: none !important;
+  /* Remove any default autofill borders */
+  box-shadow: 0 0 0px 1000px #ebe6d7 inset !important;
+  /* Prevent gray autofill shadow */
+}
+
+input:-webkit-autofill:focus {
+  background-color: #ebe6d7 !important;
+  box-shadow: 0 0 0px 1000px #ebe6d7 inset !important;
+}
+
+input:-webkit-autofill:active {
+  background-color: #ebe6d7 !important;
+  color: black !important;
+}
+
+.custom-toast {
+  background-color: #d1c7a3 !important;
+  color: black !important;
+}
+
+.swiper-button-next,
+.swiper-button-prev {
+color: #d1c7a3;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+
+.group:hover .swiper-button-next,
+.group:hover .swiper-button-prev {
+  opacity: 1;
+}
+
+
+::-webkit-scrollbar {
+  display: none;
+}
