@@ -29,6 +29,22 @@ const Login = () => {
         }
           console.log(data); // Logs the form data to the console.
           // Simulate API call to register user here
+
+             // Simulate successful login/signup
+    const user = { id: "123", email: data.email };
+
+    // Sync cart from localStorage after login/signup
+    const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    
+    if (cart.length > 0) {
+      // Simulate API call to sync cart
+      console.log("Syncing cart...", cart);
+
+      // Optionally clear cart from localStorage after syncing
+      localStorage.removeItem('cart');
+    }
+
+    console.log("User logged in successfully", user);
       } catch (err) {
         setError('An error occurred while trying to register.');// Sets an error message if the operation fails.
       } finally {

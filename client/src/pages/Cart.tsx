@@ -39,6 +39,12 @@ const Cart = () => {
       }))
     ).filter(item => item.quantity > 0); // Only include items with a positive quantity 
   }, [cartItems]); // Recalculate only when cartItems change
+
+  // Sync cartItems to localStorage whenever it changes
+useEffect(() => {
+  localStorage.setItem('cart', JSON.stringify(cartItems));
+}, [cartItems]);
+
   
   //  A function to handle increasing or decreasing item quantities
   //  - Prevents setting a quantity below 1 by showing a toast message
