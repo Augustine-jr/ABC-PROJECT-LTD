@@ -15,7 +15,7 @@ const loginUser = async (req: Request, res: Response) => {
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).select('+password');
     if (!user) {
       return res.status(400).json({ message: 'User not found' });
     }
@@ -134,7 +134,7 @@ const adminLogin = async (req: Request, res: Response) => {
 
     res.json({ message: 'Admin login successful', token });
   } catch (err) {
-    console.error(err);
+    console.error('Admin login error:', err);
     res.status(500).json({ message: 'Server error' });
   }
 };
