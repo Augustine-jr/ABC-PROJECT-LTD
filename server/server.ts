@@ -5,6 +5,7 @@ import connectDB from './config/mongodb'
 import connectCloudinary from './config/cloudinary'
 import userRouter from './routes/userRoutes'
 import newsletterRoutes from './routes/newsletterRoutes';
+import productRoutes from './routes/productsRoutes';
 // App Config
 const app = express();
 const port = process.env.PORT || 5000;
@@ -16,6 +17,7 @@ app.use(cors())
 // API endpoints
 app.use('/api/user', userRouter)
 app.use('/api/newsletter', newsletterRoutes)
+app.use('/api/products', productRoutes);
 app.get('/',(req,res)=>{
   res.send("Api Working")
 })

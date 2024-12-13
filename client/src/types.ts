@@ -7,7 +7,7 @@ export interface Product {
   bestseller?: boolean; // Optional flag to indicate if the product is a bestseller
   description: string; // Add this line to include the description property
   sizes: string[];
-  category: string;
+  category: 'Timber' | 'Plywood' | 'Nails' | 'Leather' | 'Other Materials';
   subCategory: string;
   oldPrice?: number;
   discount: number; // Add this line
@@ -45,6 +45,7 @@ export interface ShopContextType {
   updateQuantity: (itemId: string, size: string, quantity: number) => void;
   getCartSubtotal: () => number;
   navigate: (path: string) => void; 
+  setProducts: (products: Product[]) => void;
 }
 
 // Enum to represent the different statuses an order can have

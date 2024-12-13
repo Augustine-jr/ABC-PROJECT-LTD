@@ -24,7 +24,7 @@ const productSchema = new mongoose.Schema({
     type: [String],
     required: true,
     validate: {
-      validator: (images) => images.length > 0, // Ensures at least one image URL
+      validator: (images: string[]) => images.length > 0, // Add string[] type
       message: "At least one image URL is required.",
     },
   },
@@ -32,6 +32,7 @@ const productSchema = new mongoose.Schema({
     type: String,
     required: true,
     trim: true,
+     enum: ['Timber', 'Plywood', 'Nails', 'Leather', 'Other Materials']
   },
   subCategory: {
     type: String,
@@ -42,7 +43,7 @@ const productSchema = new mongoose.Schema({
     type: [String],
     required: true,
     validate: {
-      validator: (sizes) => sizes.length > 0, // Ensures at least one size
+      validator: (sizes: string[]) => sizes.length > 0, // Add string[] type
       message: "At least one size is required.",
     },
   },

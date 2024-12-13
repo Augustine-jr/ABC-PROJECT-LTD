@@ -11,6 +11,7 @@ import ProductItem from '../components/ProductItem';
 import Loader from '../components/Loader';
 import CategoryFilter from '../components/CategoryFilter';
 import PriceFilter from '../components/PriceFilter';
+import { productAPI } from '../services/api';
 
 const CATEGORIES = ['Timber', 'Plywood', 'Nails', 'Leather', 'Other Materials'];
 
@@ -31,99 +32,92 @@ const Material = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]); // Selected categories state
   const [sortOption, setSortOption] = useState<string>('relevant'); // Sorting option for the products
 
-  useEffect(() => {
-    setFilterProducts(products); // On component mount, set filtered products to all products
-  }, [products]);
+ useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const initialProducts = await productAPI.getProducts();
+        setFilterProducts(initialProducts);
+      } catch (error) {
+        toast.error('Failed to fetch products');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const toggleCategory = (category: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(category)
-        ? prev.filter((cat) => cat !== category) // If already selected, remove category
-        : [...prev, category]  // Else, add the category to selected categories
-    );
-  };
+    fetchProducts();
+  }, []);
 
   const applyFilter = async () => {
     const min = Number(minPrice);
     const max = Number(maxPrice);
 
-    if ((minPrice && min < 0) || (maxPrice && max < 0) || (minPrice && maxPrice && min > max)) {
+    if (
+      (minPrice && isNaN(min)) ||
+      (maxPrice && isNaN(max)) ||
+      (minPrice && maxPrice && min > max) ||
+      (min < 0 || max < 0)
+    ) {
       toast.error('Invalid price range. Please check your inputs.');
       return;
     }
 
-    try {
+   try {
       setLoading(true);
-      const response = await axios.get('/api/products', {
-        params: {
-          minPrice: minPrice ? min : undefined, // Send minPrice if provided
-          maxPrice: maxPrice ? max : undefined, // Send maxPrice if provided
-          categories: selectedCategories.length ? selectedCategories.join(',') : undefined, // Send selected categories
-        },
+      const response = await productAPI.getProducts({
+        minPrice: minPrice || undefined,
+        maxPrice: maxPrice || undefined,
+        categories: selectedCategories.length ? selectedCategories.join(',') : undefined,
+        sort: sortOption,
       });
 
-      if (response.status === 200 && Array.isArray(response.data)) {
-        setFilterProducts(response.data); // Update filtered products based on API response
-        toast.success('Filter applied successfully!');
-      } else {
-        toast.error('Unexpected response format');
-      }
+      setFilterProducts(response);
+      toast.success('Filter applied successfully!');
     } catch (error) {
-      const axiosError = error as AxiosError;
-
-      // Handle errors from the API using status codes
-      if (axiosError.response) {
-        const statusCode = axiosError.response.status;
-        switch (statusCode) {
-          case 400:
-            toast.error('Bad request. Please check the filter inputs.');
-            break;
-          case 404:
-            toast.error('No products found with the given criteria.');
-            break;
-          case 500:
-            toast.error('Server error. Please try again later.');
-            break;
-          default:
-            toast.error(`An error occurred: ${statusCode}`);
-        }
-      } else if (axiosError.request) {
-        toast.error('No response from the server. Please try again later.');
-      } else {
-        toast.error('An error occurred while setting up the request.');
-      }
+      toast.error('Error applying filters');
     } finally {
-      setLoading(false); // End loading
+      setLoading(false);
     }
-  };
-
-  const resetFilters = () => {
+  }
+  
+  const resetFilters = async () => {
     setMinPrice('');
     setMaxPrice('');
     setSelectedCategories([]);
-    setShowFilter(false);
     setSortOption('relevant');
-    setFilterProducts(products);
-    toast.info('Filters have been reset');
+    try {
+      const initialProducts = await productAPI.getProducts();
+      setFilterProducts(initialProducts);
+      toast.info('Filters have been reset');
+    } catch (error) {
+      toast.error('Error resetting filters');
+    }
   };
 
-  const handleSort = (value: string) => {
+  const handleSort = async (value: string) => {
     setSortOption(value);
-    const sorted = [...filterProducts];
-
-    // Sorting logic
-    switch (value) {
-      case 'low-high':
-        sorted.sort((a, b) => a.price - b.price);
-        break;
-      case 'high-low':
-        sorted.sort((a, b) => b.price - a.price);
-        break;
-      default:
-        setFilterProducts(products);
-        return;
+    try {
+      setLoading(true);
+      const response = await productAPI.getProducts({
+        minPrice: minPrice || undefined,
+        maxPrice: maxPrice || undefined,
+        categories: selectedCategories.length ? selectedCategories.join(',') : undefined,
+        sort: value,
+      });
+      setFilterProducts(response);
+    } catch (error) {
+      toast.error('Error sorting products');
+    } finally {
+      setLoading(false);
     }
-    setFilterProducts(sorted); // Update filtered products after sorting
+  };
+
+  const toggleCategory = (category: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(category)
+        ? prev.filter((cat) => cat !== category)
+        : [...prev, category]
+    );
   };
 
   return (
@@ -194,23 +188,26 @@ const Material = () => {
             <option value="high-low">Price: High to Low</option>
           </select>
         </div>
-        {loading ? (
-          <Loader />
-        ) : filterProducts.length === 0 ? (
-          <p>No products found!</p>
-        ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6 divide-[#d1c7a3] divide-y md:divide-y-0 border-[#d1c7a3] border-y divide-x">
-            {filterProducts.map((item, index) => (
-              <ProductItem
-                key={index}
-                name={item.name}
-                id={item._id}
-                price={item.price}
-                image={item.image}
-              />
-            ))}
-          </div>
-        )}
+      {loading ? (
+  <div className="flex justify-center items-center w-full h-full">
+    <Loader /> {/* Make sure your Loader component has enough visual feedback */}
+  </div>
+) : filterProducts.length === 0 ? (
+  <div className="text-center py-4">No products found!</div>
+) : (
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6 divide-[#d1c7a3] divide-y md:divide-y-0 border-[#d1c7a3] border-y divide-x">
+    {filterProducts.map((item, index) => (
+      <ProductItem
+        key={index}
+        name={item.name}
+        id={item._id}
+        price={item.price}
+        image={item.image}
+      />
+    ))}
+  </div>
+)}
+
       </div>
 
       <ToastContainer />
