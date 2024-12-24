@@ -45,7 +45,8 @@ export const assets = {
     hero_image5,
     hero_image6,
     cross_icon,
-    star_icon
+    star_icon,
+    goat_icon
  };
 
 export const products = [
