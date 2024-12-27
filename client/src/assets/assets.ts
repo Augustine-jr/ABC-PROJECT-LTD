@@ -21,6 +21,7 @@ import hero_image6 from './hero_image6.webp'
 import cross_icon from './cross_icon.svg';
 import star_icon from './star_icon.svg';
 import { start } from 'repl';
+import { Product } from '../types';
 
 
 export const assets = {
