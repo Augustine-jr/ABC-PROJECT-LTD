@@ -16,7 +16,7 @@ interface SortOptionType {
   [key: string]: SortOrder;
 }
 
-// Get all products with filtering and sorting
+// Get all products with filtering and sorting type
 export const getAllProducts = async (req: Request, res: Response) => {
   try {
     const { minPrice, maxPrice, categories, sort } = req.query;
